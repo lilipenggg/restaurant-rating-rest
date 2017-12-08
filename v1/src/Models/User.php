@@ -9,6 +9,7 @@
 namespace Restaurant\Models;
 use \Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\UserEnums;
+use \Restaurant\Http\StatusCodes;
 
 
 class User implements \JsonSerializable
@@ -209,24 +210,158 @@ class User implements \JsonSerializable
         $this->userType = $userType;
     }
 
+    /*
+     * Create a user in the User table
+     */
     public function create()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $stmtHandle = $dbh->prepare(
+                "INSERT INTO `User`(
+                `userId`, 
+                `firstName`, 
+                `lastName`, 
+                `email`, 
+                `password`, 
+                `zipCode`, 
+                `birthday`, 
+                `phoneNumber`, 
+                `gender`, 
+                `userType`) 
+                VALUES (
+                :userId, :firstName, :lastName, :email, :password, :zipCode, 
+                :birthday, :phoneNumber, :gender, :userType)");
 
+            $stmtHandle->bindValue(":userId", $this->userId);
+            $stmtHandle->bindValue(":firstName", $this->firstName);
+            $stmtHandle->bindValue(":lastName", $this->lastName);
+            $stmtHandle->bindValue(":email", $this->email);
+            $stmtHandle->bindValue(":password", $this->password);
+            $stmtHandle->bindValue(":zipCode", $this->zipCode);
+            $stmtHandle->bindValue(":birthday", $this->birthday);
+            $stmtHandle->bindValue(":phoneNumber", $this->phoneNumber);
+            $stmtHandle->bindValue(":gender", $this->gender);
+            $stmtHandle->bindValue(":userType", $this->userType);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function update()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $stmtHandle = $dbh->prepare(
+              "UPDATE `User` 
+               SET `firstName`=:firstName,
+                   `lastName`=:lastName,
+                   `email`=:email,
+                   `password`=:password,
+                   `zipCode`=:zipCode,
+                   `birthday`=:birthday,
+                   `phoneNumber`=:phoneNumber,
+                   `gender`=:gender,
+                   `userType`=:userType WHERE `userId`=:userId"
+            );
 
+            $stmtHandle->bindValue(":userId", $this->userId);
+            $stmtHandle->bindValue(":firstName", $this->firstName);
+            $stmtHandle->bindValue(":lastName", $this->lastName);
+            $stmtHandle->bindValue(":email", $this->email);
+            $stmtHandle->bindValue(":password", $this->password);
+            $stmtHandle->bindValue(":zipCode", $this->zipCode);
+            $stmtHandle->bindValue(":birthday", $this->birthday);
+            $stmtHandle->bindValue(":phoneNumber", $this->phoneNumber);
+            $stmtHandle->bindValue(":gender", $this->gender);
+            $stmtHandle->bindValue(":userType", $this->userType);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function load()
     {
+        try
+        {
+            if (empty($this->userId))
+            {
+                throw new \Exception("Error: user id is not set.");
+            }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `userId` = :userId");
+                $stmtHandle->bindValue(":userId", $this->userId);
 
+                $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+                $success = $stmtHandle->execute();
+
+                if ($success === false)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+                else
+                {
+                    // When this user exists, set the attributes of this user object
+                    if ($stmtHandle->rowCount() != 0)
+                    {
+                        $data = $stmtHandle->fetch();
+                        $this->firstName = $data['firstName'];
+                        $this->lastName = $data['lastName'];
+                        $this->email = $data['email'];
+                        $this->password = $data['password'];
+                        $this->zipCode = $data['zipCode'];
+                        $this->birthday = $data['birthday'];
+                        $this->phoneNumber = $data['phoneNumber'];
+                        $this->gender = $data['gender'];
+                        $this->userType = $data['userType'];
+                    }
+                    else
+                    {
+                        throw new \Exception("Error: user with id ".$this->userId." does not exist in the database.");
+                    }
+                }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function delete()
     {
-
+        try
+        {
+            if (empty($this->userId))
+            {
+                throw new \Exception("Error: user id is not set.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
+
 
 }
