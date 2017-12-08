@@ -6,7 +6,7 @@
  * Time: 23:41
  */
 
-
+namespace Restaurant\Utilities;
 
 class DatabaseConnection
 {
