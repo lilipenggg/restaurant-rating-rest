@@ -11,25 +11,26 @@ require_once 'vendor/autoload.php';
 use Restaurant\Http\Methods as Methods;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  use ($baseURI) {
+
     /** TOKENS CLOSURES */
     $handlePostToken = function ($args) {
-        $tokenController = new \Restaurant\Controllers\TokensController();
-        //Is the data via a form?
-        if (!empty($_POST['username'])) {
-            $username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
+        $tokenController = new \Restaurant\Controllers\TokenController();
+
+        if (!empty($_POST['email'])) {
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
             $password = $_POST['password'] ?? "";
         } else {
             //Attempt to parse json input
             $json = (object) json_decode(file_get_contents('php://input'));
             if (count((array)$json) >= 2) {
-                $username = filter_var($json->username, FILTER_SANITIZE_STRING);
+                $email = filter_var($json->email, FILTER_SANITIZE_STRING);
                 $password = $json->password;
             } else {
                 http_response_code(\Restaurant\Http\StatusCodes::BAD_REQUEST);
                 exit();
             }
         }
-        return $tokenController->buildToken($username, $password);
+        return $tokenController->buildToken($email, $password);
     };
 
     /** TOKEN ROUTE */

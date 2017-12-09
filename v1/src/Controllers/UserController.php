@@ -7,13 +7,29 @@
  */
 
 namespace Restaurant\Controllers;
+use \Restaurant\Models\User;
 
 
 class UserController
 {
+    /*
+     * @Route("/users/{id}")
+     * @Method("GET")
+     */
     function getUser($args)
     {
+        $userId = $args['id'];
+        if (User::userExists($userId) === true)
+        {
+            // Check whether the person who send the request is retrieving their own information
+            $user = new User();
+            $user->setUserId($userId);
+            $user->load();
+        }
+        else
+        {
 
+        }
     }
 
     function getUsers()

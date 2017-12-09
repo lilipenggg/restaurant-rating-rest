@@ -13,7 +13,7 @@ class DatabaseConnection
     private static $instance = null;
     private static $host = "localhost";
     private static $dbname = "W01254326";
-    private static $user = "w01254326";
+    private static $user = "W01254326";
     private static $pass = "Lilics!";
 
     private function __construct()

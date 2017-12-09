@@ -61,7 +61,7 @@ class User implements \JsonSerializable
     /**
      * @param mixed $userId
      */
-    public function setUserId(int $userId)
+    public function setUserId(string $userId)
     {
         $this->userId = $userId;
     }
@@ -368,6 +368,33 @@ class User implements \JsonSerializable
                 {
                     throw new \PDOException("Error: SQL query execution failed.");
                 }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
+    }
+
+    public static function userExists(string $id) : bool
+    {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `userId` = :userId");
+            $stmtHandle->bindValue(":userId", $id);
+
+            $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $success = $stmtHandle->execute();
+
+            if (!$success)
+            {
+                throw new \PDOException("error: fail to execute sql query");
+            }
+            else
+            {
+                return ($stmtHandle->rowCount() != 0 ? true : false);
             }
         }
         catch (\Exception $e)

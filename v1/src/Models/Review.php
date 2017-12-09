@@ -48,7 +48,7 @@ class Review implements \JsonSerializable
     /**
      * @param mixed $reviewId
      */
-    public function setReviewId(int $reviewId)
+    public function setReviewId(string $reviewId)
     {
         $this->reviewId = $reviewId;
     }

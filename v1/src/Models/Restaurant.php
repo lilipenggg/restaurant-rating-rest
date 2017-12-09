@@ -51,7 +51,7 @@ class Restaurant implements \JsonSerializable
     /**
      * @param mixed $restaurantId
      */
-    public function setRestaurantId(int $restaurantId)
+    public function setRestaurantId(string $restaurantId)
     {
         $this->restaurantId = $restaurantId;
     }
