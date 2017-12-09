@@ -11,5 +11,34 @@ namespace Restaurant\Controllers;
 
 class RestaurantController
 {
+    function getRestaurant($args)
+    {
+
+    }
+
+    function getRestaurants($args)
+    {
+
+    }
+
+    function postRestaurant()
+    {
+
+    }
+
+    function putRestaurant($args)
+    {
+
+    }
+
+    function patchRestaurant($args)
+    {
+
+    }
+
+    function deleteRestaurant($args)
+    {
+
+    }
 
 }

@@ -11,5 +11,33 @@ namespace Restaurant\Controllers;
 
 class UserController
 {
+    function getUser($args)
+    {
 
+    }
+
+    function getUsers()
+    {
+
+    }
+
+    function postUser()
+    {
+
+    }
+
+    function putUser($args)
+    {
+
+    }
+
+    function patchUser($args)
+    {
+
+    }
+
+    function deleteUser($args)
+    {
+
+    }
 }

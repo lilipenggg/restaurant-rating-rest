@@ -11,5 +11,33 @@ namespace Restaurant\Controllers;
 
 class ReviewController
 {
+    function getReview($args)
+    {
 
+    }
+
+    function getReviews()
+    {
+
+    }
+
+    function postReview()
+    {
+
+    }
+
+    function putReview($args)
+    {
+
+    }
+
+    function patchReview($args)
+    {
+
+    }
+
+    function deleteReview($args)
+    {
+
+    }
 }
