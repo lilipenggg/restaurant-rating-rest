@@ -9,7 +9,7 @@
 namespace Restaurant\Models;
 use \Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\UserEnums;
-use \Restaurant\Http\StatusCodes;
+require_once "..\Utilities\Utilities.php";
 
 
 class User implements \JsonSerializable
@@ -218,6 +218,7 @@ class User implements \JsonSerializable
         try
         {
             $dbh = DatabaseConnection::getInstance();
+            $this->userId = GUID(); // Generate a unique guid for the user id
             $stmtHandle = $dbh->prepare(
                 "INSERT INTO `User`(
                 `userId`, 

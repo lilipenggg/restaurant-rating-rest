@@ -7,7 +7,9 @@
  */
 
 namespace Restaurant\Models;
+use \Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\RestaurantEnums;
+require_once "..\Utilities\Utilities.php";
 
 
 class Restaurant implements \JsonSerializable
@@ -152,21 +154,141 @@ class Restaurant implements \JsonSerializable
 
     public function create()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $this->restaurantId = GUID();
+            $stmtHandle = $dbh->prepare(
+                "INSERT INTO `Restaurant`(
+                `restaurantId`, 
+                `name`, 
+                `phoneNumber`, 
+                `address`, 
+                `website`, 
+                `userId`) 
+                VALUES (:restaurantId,:name,:phoneNumber,:address,:website,:userId)"
+            );
 
+            $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+            $stmtHandle->bindValue(":name", $this->name);
+            $stmtHandle->bindValue(":phoneNumber", $this->phoneNumber);
+            $stmtHandle->bindValue(":address", $this->address);
+            $stmtHandle->bindValue(":website", $this->website);
+            $stmtHandle->bindValue(":userId", $this->userId);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function update()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $stmtHandle = $dbh->prepare(
+                "UPDATE `Restaurant` 
+                 SET `name`=:name,
+                     `phoneNumber`=:phoneNumber,
+                     `address`=:address,
+                     `website`=:website
+                 WHERE `restaurantId` = :restaurantId
+                 AND `userId = :userId`"
+            );
 
+            $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+            $stmtHandle->bindValue(":name", $this->name);
+            $stmtHandle->bindValue(":phoneNumber", $this->phoneNumber);
+            $stmtHandle->bindValue(":address", $this->address);
+            $stmtHandle->bindValue(":website", $this->website);
+            $stmtHandle->bindValue(":userId", $this->userId);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function load()
     {
+        try
+        {
+            if (empty($this->restaurantId))
+            {
+                throw new \Exception("Error: restaurant id is not set.");
+            }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("SELECT * FROM `Restaurant` WHERE `restaurantId` = :restaurantId");
+                $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
 
+                $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                    throw new \PDOException("Error: SQL query execution failed.");
+                else
+                {
+                    if ($stmtHandle->rowCount() != 0)
+                    {
+                        $data = $stmtHandle->fetch();
+                        $this->name = $data['name'];
+                        $this->phoneNumber = $data['phoneNumber'];
+                        $this->address = $data['address'];
+                        $this->website = $data['website'];
+                        $this->userId = $data['userId'];
+                    }
+                    else
+                    {
+                        throw new \Exception("Error: this restaurant does not exist in the database");
+                    }
+                }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function delete()
     {
+        try
+        {
+            if (empty($this->restaurantId))
+            {
+                throw new \Exception("Error: restaurant id is not set.");
+            }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("DELETE FROM `Restaurant` WHERE `restaurantId` = :restaurantId");
+                $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+                $success = $stmtHandle->execute();
 
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 }
