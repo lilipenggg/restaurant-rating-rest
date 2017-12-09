@@ -356,6 +356,18 @@ class User implements \JsonSerializable
             {
                 throw new \Exception("Error: user id is not set.");
             }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("DELETE FROM `User` WHERE `userId` = :userId");
+                $stmtHandle->bindValue(":userId", $this->userId);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+            }
         }
         catch (\Exception $e)
         {
