@@ -7,7 +7,9 @@
  */
 
 namespace Restaurant\Models;
+use Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\ReviewEnums;
+require_once "..\Utilities\Utilities.php";
 
 
 class Review implements \JsonSerializable
@@ -117,21 +119,133 @@ class Review implements \JsonSerializable
 
     public function create()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $this->reviewId = GUID();
+            $stmtHandle = $dbh->prepare(
+                "INSERT INTO `Review`(
+                `reviewId`, 
+                `rating`, 
+                `restaurantId`, 
+                `reviewContent`, 
+                `userId`) 
+                VALUES (:reviewId,:rating,:restaurantId,:reviewContent,:userId)"
+            );
 
+            $stmtHandle->bindValue(":reviewId", $this->reviewId);
+            $stmtHandle->bindValue(":rating", $this->rating);
+            $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+            $stmtHandle->bindValue(":reviewContent", $this->reviewContent);
+            $stmtHandle->bindValue(":userId", $this->userId);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+                throw new \PDOException("Error: SQL query execution failed.");
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function update()
     {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+            $stmtHandle = $dbh->prepare(
+                "UPDATE `Review` 
+                 SET `rating`=:rating,
+                     `restaurantId`=:restaurantId,
+                     `reviewContent`=:reviewContent,
+                     `userId`=:userId 
+                 WHERE `reviewId`=:reviewId"
+            );
 
+            $stmtHandle->bindValue(":reviewId", $this->reviewId);
+            $stmtHandle->bindValue(":rating", $this->rating);
+            $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+            $stmtHandle->bindValue(":reviewContent", $this->reviewContent);
+            $stmtHandle->bindValue(":userId", $this->userId);
+
+            $success = $stmtHandle->execute();
+            if (!$success)
+                throw new \PDOException("Error: SQL query execution failed.");
+
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function load()
     {
+        try
+        {
+            if (empty($this->reviewId))
+            {
+                throw new \Exception("Error: review id is not set.");
+            }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("SELECT * FROM `Review` WHERE `reviewId` = :reviewId");
 
+                $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                    throw new \PDOException("Error: SQL query execution failed.");
+                else
+                {
+                    if ($stmtHandle->rowCount() != 0)
+                    {
+                        $data = $stmtHandle->fetch();
+                        $this->rating = $data['rating'];
+                        $this->restaurantId = $data['restaurantId'];
+                        $this->reviewContent = $data['reviewContent'];
+                        $this->userId = $data['userId'];
+                    }
+                    else
+                    {
+                        throw new \Exception("Error: this review does not exist in the database.");
+                    }
+                }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 
     public function delete()
     {
+        try
+        {
+            if (empty($this->reviewId))
+            {
+                throw new \Exception(("Error: review id is not set."));
+            }
+            else
+            {
+                $dbh = DatabaseConnection::getInstance();
+                $stmtHandle = $dbh->prepare("DELETE FROM `Review` WHERE `reviewId` = :reviewId");
+                $stmtHandle->bindValue(":reviewId", $this->reviewId);
 
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
     }
 }

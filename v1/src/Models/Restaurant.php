@@ -195,16 +195,16 @@ class Restaurant implements \JsonSerializable
             $dbh = DatabaseConnection::getInstance();
             $stmtHandle = $dbh->prepare(
                 "UPDATE `Restaurant` 
-                 SET `name`=:name,
+                 SET `name`=:rname,
                      `phoneNumber`=:phoneNumber,
                      `address`=:address,
-                     `website`=:website
-                 WHERE `restaurantId` = :restaurantId
-                 AND `userId = :userId`"
+                     `website`=:website,
+                     `userId = :userId`
+                 WHERE `restaurantId` = :restaurantId"
             );
 
             $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
-            $stmtHandle->bindValue(":name", $this->name);
+            $stmtHandle->bindValue(":rname", $this->name);
             $stmtHandle->bindValue(":phoneNumber", $this->phoneNumber);
             $stmtHandle->bindValue(":address", $this->address);
             $stmtHandle->bindValue(":website", $this->website);
