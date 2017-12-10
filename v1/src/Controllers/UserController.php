@@ -53,7 +53,7 @@ class UserController
         catch (\Exception $e)
         {
             http_response_code(StatusCodes::BAD_REQUEST);
-            exit("Error: ".$e->getMessage());
+            exit($e->getMessage());
         }
     }
 
@@ -101,7 +101,7 @@ class UserController
         catch (\Exception $e)
         {
             http_response_code(StatusCodes::BAD_REQUEST);
-            exit("Error: ".$e->getMessage());
+            exit($e->getMessage());
         }
     }
 
@@ -173,7 +173,7 @@ class UserController
         catch (\Exception $e)
         {
             http_response_code(StatusCodes::BAD_REQUEST);
-            exit("Error: ".$e->getMessage());
+            exit($e->getMessage());
         }
     }
 
@@ -182,23 +182,177 @@ class UserController
         try
         {
             $data = (object)json_decode(file_get_contents('php://input'), true);
-            
+
+            // Check if the requested user exists
+            $userId = $args['id'];
+            if (User::userExists($userId) === true)
+            {
+                $user = new User();
+                $user->setUserId($userId);
+                $user->load();
+
+                // Check if the person who sent the request is requesting their own information
+                if ($user->getEmail() == Token::getEmailFromToken())
+                {
+                    if (property_exists($data, UserEnums::FIRST_NAME) &&
+                        property_exists($data, UserEnums::LAST_NAME) &&
+                        property_exists($data, UserEnums::EMAIL) &&
+                        property_exists($data, UserEnums::PASSWORD) &&
+                        property_exists($data, UserEnums::ZIP_CODE)
+                    )
+                    {
+                        $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
+                        $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
+                        $user->setEmail(filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL));
+                        $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
+                        $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+
+                        // Check and set the optional attributes for user
+                        if (property_exists($data, UserEnums::BIRTHDAY))
+                            $user->setBirthday(filter_var($data->{UserEnums::BIRTHDAY}, FILTER_SANITIZE_STRING));
+                        else
+                            $user->setBirthday(null);
+
+                        if (property_exists($data, UserEnums::PHONE_NUMBER))
+                            $user->setPhoneNumber(filter_var($data->{UserEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
+                        else
+                            $user->setPhoneNumber(null);
+
+                        if (property_exists($data, UserEnums::GENDER))
+                            $user->setGender(filter_var($data->{UserEnums::GENDER}, FILTER_SANITIZE_STRING));
+                        else
+                            $user->setGender(null);
+
+                        // Update the user in the database
+                        $user->update();
+                        http_response_code(StatusCodes::OK);
+                    }
+                    else
+                    {
+                        http_response_code(StatusCodes::BAD_REQUEST);
+                        exit("Error: this request does not contain all the mandatory info for full updating a user.");
+                    }
+                }
+                else
+                {
+                    http_response_code(StatusCodes::UNAUTHORIZED);
+                    exit("Error: you are not authorized to update this user's information.");
+                }
+            }
+            else
+            {
+                http_response_code(StatusCodes::BAD_REQUEST);
+                exit("Error: user with id ".$userId." does not exist in the database.");
+            }
         }
         catch (\Exception $e)
         {
             http_response_code(StatusCodes::BAD_REQUEST);
-            exit("Error: ".$e->getMessage());
+            exit($e->getMessage());
         }
 
     }
 
+    /*
+    *  @Route("/users/{id}")
+    *  @Method("PATCH")
+    */
     function patchUser($args)
     {
+        try
+        {
+            $data = (object)json_decode(file_get_contents('php://input'), true);
 
+            // Check if the requested user exists
+            $userId = $args['id'];
+            if (User::userExists($userId) === true)
+            {
+                // Check whether the person who sent the request is updating their own information
+                $user = new User();
+                $user->setUserId($userId);
+                $user->load();
+
+                if ($user->getEmail() == Token::getEmailFromToken())
+                {
+                    if (property_exists($data, UserEnums::FIRST_NAME))
+                        $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
+
+                    if (property_exists($data, UserEnums::LAST_NAME))
+                        $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
+
+                    if (property_exists($data, UserEnums::EMAIL))
+                        $user->setEmail(filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL));
+
+                    if (property_exists($data, UserEnums::PASSWORD))
+                        $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
+
+                    if (property_exists($data, UserEnums::ZIP_CODE))
+                        $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+
+                    if (property_exists($data, UserEnums::BIRTHDAY))
+                        $user->setBirthday(filter_var($data->{UserEnums::BIRTHDAY}, FILTER_SANITIZE_STRING));
+
+                    if (property_exists($data, UserEnums::PHONE_NUMBER))
+                        $user->setPhoneNumber(filter_var($data->{UserEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
+
+                    if (property_exists($data, UserEnums::GENDER))
+                        $user->setGender(filter_var($data->{UserEnums::GENDER}, FILTER_SANITIZE_STRING));
+
+                    // Update the user in the database
+                    $user->update();
+                    http_response_code(StatusCodes::OK);
+                }
+                else
+                {
+                    http_response_code(StatusCodes::UNAUTHORIZED);
+                    exit("Error: you are not authorized to update this user's information.");
+                }
+            }
+            else
+            {
+                http_response_code(StatusCodes::BAD_REQUEST);
+                exit("Error: user with id ".$userId." does not exist in the database.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            http_response_code(StatusCodes::BAD_REQUEST);
+            exit($e->getMessage());
+        }
     }
 
     function deleteUser($args)
     {
-
+        try
+        {
+            // Check if the requested user exists in the database
+            $userId = $args['id'];
+            if (User::userExists($userId))
+            {
+                // Check whether the person who sent the request is an admin role
+                if (Token::getRoleFromToken() == Token::ROLE_ADMIN)
+                {
+                    // Perform the delete operation
+                    $user = new User();
+                    $user->setUserId($userId);
+                    $user->delete();
+                }
+                else
+                {
+                    http_response_code(StatusCodes::UNAUTHORIZED);
+                    exit("Error: you are not authorized to perform this operation.");
+                }
+            }
+            else
+            {
+                http_response_code(StatusCodes::BAD_REQUEST);
+                exit("Error: user with id ".$userId." does not exist in the database.");
+            }
+        }
+        catch (\Exception $e)
+        {
+            http_response_code(StatusCodes::BAD_REQUEST);
+            exit($e->getMessage());
+        }
     }
 }
