@@ -9,7 +9,6 @@
 namespace Restaurant\Models;
 use Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\ReviewEnums;
-require_once "..\Utilities\Utilities.php";
 
 
 class Review implements \JsonSerializable
@@ -122,7 +121,6 @@ class Review implements \JsonSerializable
         try
         {
             $dbh = DatabaseConnection::getInstance();
-            $this->reviewId = GUID();
             $stmtHandle = $dbh->prepare(
                 "INSERT INTO `Review`(
                 `reviewId`, 

@@ -9,7 +9,6 @@
 namespace Restaurant\Models;
 use \Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\RestaurantEnums;
-require_once "..\Utilities\Utilities.php";
 
 
 class Restaurant implements \JsonSerializable
@@ -157,7 +156,6 @@ class Restaurant implements \JsonSerializable
         try
         {
             $dbh = DatabaseConnection::getInstance();
-            $this->restaurantId = GUID();
             $stmtHandle = $dbh->prepare(
                 "INSERT INTO `Restaurant`(
                 `restaurantId`, 

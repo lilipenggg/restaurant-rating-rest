@@ -9,14 +9,13 @@
 namespace Restaurant\Models;
 use \Restaurant\Utilities\DatabaseConnection;
 use \Restaurant\Utilities\UserEnums;
-require_once "..\Utilities\Utilities.php";
 
 
 class User implements \JsonSerializable
 {
     // Constants
     const TYPE_REGULAR = "Regular";
-    const TYPE_BUSINESS = "Business";
+    const TYPE_ADMIN = "Admin";
 
     // Attributes
     private $userId;
@@ -218,7 +217,6 @@ class User implements \JsonSerializable
         try
         {
             $dbh = DatabaseConnection::getInstance();
-            $this->userId = GUID(); // Generate a unique guid for the user id
             $stmtHandle = $dbh->prepare(
                 "INSERT INTO `User`(
                 `userId`, 
@@ -376,13 +374,22 @@ class User implements \JsonSerializable
         }
     }
 
-    public static function userExists(string $id) : bool
+    public static function userExists(string $value, string $type='Id') : bool
     {
         try
         {
             $dbh = DatabaseConnection::getInstance();
-            $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `userId` = :userId");
-            $stmtHandle->bindValue(":userId", $id);
+
+            if ($type == 'Id')
+            {
+                $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `userId` = :userId");
+                $stmtHandle->bindValue(":userId", $value);
+            }
+            else if ($type == 'Email')
+            {
+                $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `email` = :email");
+                $stmtHandle->bindValue(":email", $value);
+            }
 
             $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
 
@@ -390,7 +397,7 @@ class User implements \JsonSerializable
 
             if (!$success)
             {
-                throw new \PDOException("error: fail to execute sql query");
+                throw new \PDOException("Error: SQL query execution failed.");
             }
             else
             {
@@ -402,6 +409,5 @@ class User implements \JsonSerializable
             throw $e;
         }
     }
-
 
 }
