@@ -13,7 +13,7 @@ use \Restaurant\Models\Token;
 use \Restaurant\Http\StatusCodes;
 use Restaurant\Utilities\DatabaseConnection;
 use Restaurant\Utilities\UserEnums;
-require_once "..\Utilities\Utilities.php";
+use Restaurant\Utilities\Utilities as u;
 
 
 class UserController
@@ -140,7 +140,7 @@ class UserController
                     $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
 
                     // Set the user hidden attributes
-                    $user->setUserId(GUID());
+                    $user->setUserId(u::unique_id());
                     $user->setUserType(User::TYPE_REGULAR); // Only allow creating regular type user from sending request
 
                     // Check and set the optional attributes for user

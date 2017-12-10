@@ -9,6 +9,7 @@
 require_once 'config.php';
 require_once 'vendor/autoload.php';
 use Restaurant\Http\Methods as Methods;
+use Restaurant\Controllers\UserController;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  use ($baseURI) {
 
@@ -33,8 +34,41 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
         return $tokenController->buildToken($email, $password);
     };
 
+    /** USER CLOSURES */
+    $handleGetUser = function ($args) {
+        return (new UserController())->getUser($args);
+    };
+
+    $handleGetUsers = function () {
+        return (new UserController())->getUsers();
+    };
+
+    $handlePostUser = function () {
+        return (new UserController())->postUser();
+    };
+
+    $handlePutUser = function ($args) {
+        return (new UserController())->putUser($args);
+    };
+
+    $handlePatchUser = function ($args) {
+        return (new UserController())->patchUser($args);
+    };
+
+    $handleDeleteUser = function ($args) {
+        return (new UserController())->deleteUser($args);
+    };
+
     /** TOKEN ROUTE */
     $r->addRoute(Methods::POST, $baseURI . '/tokens', $handlePostToken);
+
+    /** USER ROUTE */
+    $r->addRoute(Methods::GET, $baseURI.'/users/{id:\d+}', $handleGetUser);
+    $r->addRoute(Methods::GET, $baseURI.'/users', $handleGetUsers);
+    $r->addRoute(Methods::POST, $baseURI.'/users', $handlePostUser);
+    $r->addRoute(Methods::PUT, $baseURI.'/users/{id:\d+}', $handlePutUser);
+    $r->addRoute(Methods::PATCH, $baseURI.'/users/{id:\d+}', $handlePatchUser);
+    $r->addRoute(Methods::DELETE, $baseURI.'/users/{id:\d+}', $handleDeleteUser);
 });
 
 $method = $_SERVER['REQUEST_METHOD'];
