@@ -246,4 +246,32 @@ class Review implements \JsonSerializable
             throw $e;
         }
     }
+
+    public static function reviewExists($id) : bool
+    {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+
+            $stmtHandle = $dbh->prepare("SELECT * FROM  `Review` WHERE `reviewId` = :reviewId");
+            $stmtHandle->bindValue(":reviewId", $id);
+
+            $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $success = $stmtHandle->execute();
+
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+            else
+            {
+                return ($stmtHandle->rowCount() != 0 ? true : false);
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
+    }
 }

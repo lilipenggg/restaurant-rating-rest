@@ -109,9 +109,17 @@ class RestaurantController
             {
                 $name = filter_var($data->{RestaurantEnums::NAME}, FILTER_SANITIZE_STRING);
                 $address = filter_var($data->{RestaurantEnums::ADDRESS}, FILTER_SANITIZE_STRING);
+                if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
+                    $secondAddress = filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING);
+                else
+                    $secondAddress = null;
+
+                $city = filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING);
+                $state = filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING);
+                $zipCode = filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT);
 
                 // Check whether the restaurant exists
-                if (Restaurant::restaurantExistsByNameAddress($name, $address) === false)
+                if (Restaurant::restaurantExistsByNameAddress($name, $address, $secondAddress, $city, $state, $zipCode) === false)
                 {
                     $restaurant = new Restaurant();
 
@@ -119,9 +127,9 @@ class RestaurantController
                     $restaurant->setName($name);
                     $restaurant->setPhoneNumber(filter_var($data->{RestaurantEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
                     $restaurant->setAddress($address);
-                    $restaurant->setCity(filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING));
-                    $restaurant->setState(filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING));
-                    $restaurant->setZipCode(filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+                    $restaurant->setCity($city);
+                    $restaurant->setState($state);
+                    $restaurant->setZipCode($zipCode);
 
 
                     // Set hidden fields for restaurant
@@ -196,26 +204,32 @@ class RestaurantController
                         $name = filter_var($data->{RestaurantEnums::NAME}, FILTER_SANITIZE_STRING);
                         $address = filter_var($data->{RestaurantEnums::ADDRESS}, FILTER_SANITIZE_STRING);
 
-                        if (Restaurant::restaurantExistsByNameAddress($name, $address, $restaurant->getRestaurantId()) === false)
+                        if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
+                            $secondAddress = filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING);
+                        else
+                            $secondAddress = null;
+
+                        $city = filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING);
+                        $state = filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING);
+                        $zipCode = filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT);
+
+                        if (Restaurant::restaurantExistsByNameAddress($name, $address, $secondAddress, $city, $state, $zipCode, $restaurant->getRestaurantId()) === false)
                         {
                             // Set all the provided information to the local restaurant object
                             $restaurant->setName($name);
                             $restaurant->setPhoneNumber(filter_var($data->{RestaurantEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
                             $restaurant->setAddress($address);
-                            $restaurant->setCity(filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING));
-                            $restaurant->setState(filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING));
-                            $restaurant->setZipCode(filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+                            $restaurant->setCity($city);
+                            $restaurant->setState($state);
+                            $restaurant->setZipCode($zipCode);
 
                             // Set optional field for restaurant
+                            $restaurant->setSecondAddress($secondAddress);
+
                             if (property_exists($data, RestaurantEnums::WEBSITE))
                                 $restaurant->setWebsite(filter_var($data->{RestaurantEnums::WEBSITE}, FILTER_SANITIZE_STRING));
                             else
                                 $restaurant->setWebsite(null);
-
-                            if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
-                                $restaurant->setSecondAddress(filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING));
-                            else
-                                $restaurant->setSecondAddress(null);
 
                             // Update the restaurant in database
                             $restaurant->update();
@@ -283,29 +297,41 @@ class RestaurantController
                     else
                         $address = $restaurant->getAddress();
 
+                    if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
+                        $secondAddress = filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING);
+                    else
+                        $secondAddress = $restaurant->getSecondAddress();
+
+                    if (property_exists($data, RestaurantEnums::CITY))
+                        $city = filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING);
+                    else
+                        $city = $restaurant->getCity();
+
+                    if (property_exists($data, RestaurantEnums::STATE))
+                        $state = filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING);
+                    else
+                        $state = $restaurant->getState();
+
+                    if (property_exists($data, RestaurantEnums::ZIP_CODE))
+                        $zipCode = filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT);
+                    else
+                        $zipCode = $restaurant->getZipCode();
+
                     // Check if there is a restaurant with the same name and address exists in the database
-                    if (Restaurant::restaurantExistsByNameAddress($name, $address, $restaurant->getRestaurantId()) === false)
+                    if (Restaurant::restaurantExistsByNameAddress($name, $address, $secondAddress, $city, $state, $zipCode, $restaurant->getRestaurantId()) === false)
                     {
                         $restaurant->setName($name);
                         $restaurant->setAddress($address);
+                        $restaurant->setSecondAddress($secondAddress);
+                        $restaurant->setCity($city);
+                        $restaurant->setState($state);
+                        $restaurant->setZipCode($zipCode);
 
                         if (property_exists($data, RestaurantEnums::PHONE_NUMBER))
                             $restaurant->setPhoneNumber(filter_var($data->{RestaurantEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
 
-                        if (property_exists($data, RestaurantEnums::CITY))
-                            $restaurant->setCity(filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING));
-
-                        if (property_exists($data, RestaurantEnums::STATE))
-                            $restaurant->setCity(filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING));
-
-                        if (property_exists($data, RestaurantEnums::ZIP_CODE))
-                            $restaurant->setZipCode(filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
-
                         if (property_exists($data, RestaurantEnums::WEBSITE))
                             $restaurant->setWebsite(filter_var($data->{RestaurantEnums::WEBSITE}, FILTER_SANITIZE_STRING));
-
-                        if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
-                            $restaurant->setSecondAddress(filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING));
 
                         // Update the restaurant info based on json data provided by request
                         $restaurant->update();

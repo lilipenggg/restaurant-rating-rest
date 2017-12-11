@@ -16,7 +16,6 @@ class Restaurant implements \JsonSerializable
     private $restaurantId;
     private $name;
     private $phoneNumber;
-    private $description;
     private $address;
     private $secondAddress;
     private $city;
@@ -36,8 +35,11 @@ class Restaurant implements \JsonSerializable
             RestaurantEnums::RESTAURANT_ID => $this->restaurantId,
             RestaurantEnums::NAME => $this->name,
             RestaurantEnums::PHONE_NUMBER => $this->phoneNumber,
-            RestaurantEnums::DESCRIPTION => $this->description,
             RestaurantEnums::ADDRESS => $this->address,
+            RestaurantEnums::SECOND_ADDRESS => $this->secondAddress,
+            RestaurantEnums::CITY => $this->city,
+            RestaurantEnums::STATE => $this->state,
+            RestaurantEnums::ZIP_CODE => $this->zipCode,
             RestaurantEnums::WEBSITE => $this->website,
             RestaurantEnums::USER_ID => $this->userId
         );
@@ -203,22 +205,6 @@ class Restaurant implements \JsonSerializable
         $this->userId = $userId;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param mixed $description
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
     public function create()
     {
         try
@@ -278,7 +264,7 @@ class Restaurant implements \JsonSerializable
                      `state`=:state,
                      `zipCode`=:zipCode,
                      `website`=:website,
-                     `userId = :userId`
+                     `userId`=:userId
                  WHERE `restaurantId` = :restaurantId"
             );
 
@@ -407,7 +393,7 @@ class Restaurant implements \JsonSerializable
         }
     }
 
-    public static function restaurantExistsByNameAddress(string $name, string $address, $id=null)
+    public static function restaurantExistsByNameAddress(string $name, string $address, $secondAddress, string $city, string $state, string $zipCode, $id=null)
     {
         try
         {
@@ -415,16 +401,33 @@ class Restaurant implements \JsonSerializable
 
             if ($id == null)
             {
-                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` WHERE `name` = :rname AND `address` = :address");
+                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                                             WHERE `name` = :rname 
+                                             AND `address` = :address 
+                                             AND `secondAddress` = :secondAddress                                         
+                                             AND `city` = :city
+                                             AND `state` = :state
+                                             AND `zipCode` = :zipCode");
             }
             else
             {
-                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` WHERE `name` = :rname AND `address` = :address AND `restaurantId` != :restaurantId");
+                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                                             WHERE `name` = :rname 
+                                             AND `address` = :address 
+                                             AND `secondAddress` = :secondAddress  
+                                             AND `city` = :city
+                                             AND `state` = :state
+                                             AND `zipCode` = :zipCode
+                                             AND `restaurantId` != :restaurantId");
                 $stmtHandle->bindValue(":restaurantId", $id);
             }
 
             $stmtHandle->bindValue(":rname", $name);
             $stmtHandle->bindValue(":address", $address);
+            $stmtHandle->bindValue(":secondAddress", $secondAddress);
+            $stmtHandle->bindValue(":city", $city);
+            $stmtHandle->bindValue(":state", $state);
+            $stmtHandle->bindValue(":zipCode", $zipCode);
 
             $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
 

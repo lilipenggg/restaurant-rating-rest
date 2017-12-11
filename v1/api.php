@@ -83,6 +83,31 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
         return (new \Restaurant\Controllers\RestaurantController())->deleteRestaurant($args);
     };
 
+    /** REVIEW CLOSURES */
+    $handleGetReview = function ($args) {
+        return (new \Restaurant\Controllers\ReviewController())->getReview($args);
+    };
+
+    $handleGetReviews = function () {
+        return (new \Restaurant\Controllers\ReviewController())->getReviews();
+    };
+
+    $handlePostReview = function () {
+        return (new \Restaurant\Controllers\ReviewController())->postReview();
+    };
+
+    $handlePutReview = function ($args) {
+        return (new \Restaurant\Controllers\ReviewController())->putReview($args);
+    };
+
+    $handlePatchReview = function ($args) {
+        return (new \Restaurant\Controllers\ReviewController())->patchReview($args);
+    };
+
+    $handleDeleteReview = function ($args) {
+        return (new \Restaurant\Controllers\ReviewController())->deleteReview($args);
+    };
+
     /** TOKEN ROUTE */
     $r->addRoute(Methods::POST, $baseURI . '/tokens', $handlePostToken);
 
@@ -101,6 +126,14 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
     $r->addRoute(Methods::PUT, $baseURI.'/restaurants/{id:\d+}', $handlePutRestaurant);
     $r->addRoute(Methods::PATCH, $baseURI.'/restaurants/{id:\d+}', $handlePatchRestaurant);
     $r->addRoute(Methods::DELETE, $baseURI.'/restaurants/{id:\d+}', $handleDeleteRestaurant);
+
+    /** REVIEW ROUTE */
+    $r->addRoute(Methods::GET, $baseURI.'/reviews/{id:\d+}', $handleGetReview);
+    $r->addRoute(Methods::GET, $baseURI.'/reviews', $handleGetReviews);
+    $r->addRoute(Methods::POST, $baseURI.'/reviews', $handlePostReview);
+    $r->addRoute(Methods::PUT, $baseURI.'/reviews/{id:\d+}', $handlePutReview);
+    $r->addRoute(Methods::PATCH, $baseURI.'/reviews/{id:\d+}', $handlePatchReview);
+    $r->addRoute(Methods::DELETE, $baseURI.'/reviews/{id:\d+}', $handleDeleteReview);
 });
 
 $method = $_SERVER['REQUEST_METHOD'];
