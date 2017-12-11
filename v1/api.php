@@ -9,7 +9,6 @@
 require_once 'config.php';
 require_once 'vendor/autoload.php';
 use Restaurant\Http\Methods as Methods;
-use Restaurant\Controllers\UserController;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  use ($baseURI) {
 
@@ -36,27 +35,52 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
 
     /** USER CLOSURES */
     $handleGetUser = function ($args) {
-        return (new UserController())->getUser($args);
+        return (new \Restaurant\Controllers\UserController())->getUser($args);
     };
 
     $handleGetUsers = function () {
-        return (new UserController())->getUsers();
+        return (new \Restaurant\Controllers\UserController())->getUsers();
     };
 
     $handlePostUser = function () {
-        return (new UserController())->postUser();
+        return (new \Restaurant\Controllers\UserController())->postUser();
     };
 
     $handlePutUser = function ($args) {
-        return (new UserController())->putUser($args);
+        return (new \Restaurant\Controllers\UserController())->putUser($args);
     };
 
     $handlePatchUser = function ($args) {
-        return (new UserController())->patchUser($args);
+        return (new \Restaurant\Controllers\UserController())->patchUser($args);
     };
 
     $handleDeleteUser = function ($args) {
-        return (new UserController())->deleteUser($args);
+        return (new \Restaurant\Controllers\UserController())->deleteUser($args);
+    };
+
+    /** RESTAURANT CLOSURES */
+    $handleGetRestaurant = function ($args) {
+        return (new \Restaurant\Controllers\RestaurantController())->getRestaurant($args);
+    };
+
+    $handleGetRestaurants = function () {
+        return (new \Restaurant\Controllers\RestaurantController())->getRestaurants();
+    };
+
+    $handlePostRestaurant = function () {
+        return (new \Restaurant\Controllers\RestaurantController())->postRestaurant();
+    };
+
+    $handlePutRestaurant = function ($args) {
+        return (new \Restaurant\Controllers\RestaurantController())->putRestaurant($args);
+    };
+
+    $handlePatchRestaurant = function ($args) {
+        return (new \Restaurant\Controllers\RestaurantController())->patchRestaurant($args);
+    };
+
+    $handleDeleteRestaurant = function ($args) {
+        return (new \Restaurant\Controllers\RestaurantController())->deleteRestaurant($args);
     };
 
     /** TOKEN ROUTE */
@@ -69,6 +93,14 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
     $r->addRoute(Methods::PUT, $baseURI.'/users/{id:\d+}', $handlePutUser);
     $r->addRoute(Methods::PATCH, $baseURI.'/users/{id:\d+}', $handlePatchUser);
     $r->addRoute(Methods::DELETE, $baseURI.'/users/{id:\d+}', $handleDeleteUser);
+
+    /** RESTAURANT ROUTE */
+    $r->addRoute(Methods::GET, $baseURI.'/restaurants/{id:\d+}', $handleGetRestaurant);
+    $r->addRoute(Methods::GET, $baseURI.'/restaurants', $handleGetRestaurants);
+    $r->addRoute(Methods::POST, $baseURI.'/restaurants', $handlePostRestaurant);
+    $r->addRoute(Methods::PUT, $baseURI.'/restaurants/{id:\d+}', $handlePutRestaurant);
+    $r->addRoute(Methods::PATCH, $baseURI.'/restaurants/{id:\d+}', $handlePatchRestaurant);
+    $r->addRoute(Methods::DELETE, $baseURI.'/restaurants/{id:\d+}', $handleDeleteRestaurant);
 });
 
 $method = $_SERVER['REQUEST_METHOD'];
