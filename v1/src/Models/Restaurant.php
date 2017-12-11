@@ -349,6 +349,17 @@ class Restaurant implements \JsonSerializable
             else
             {
                 $dbh = DatabaseConnection::getInstance();
+
+                // Delete all the reviews associated with this restaurant
+                $stmtHandle = $dbh->prepare("DELETE FROM `Review` WHERE `restaurantId` = :restaurantId");
+                $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+
                 $stmtHandle = $dbh->prepare("DELETE FROM `Restaurant` WHERE `restaurantId` = :restaurantId");
                 $stmtHandle->bindValue(":restaurantId", $this->restaurantId);
                 $success = $stmtHandle->execute();
