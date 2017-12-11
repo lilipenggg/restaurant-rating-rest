@@ -115,24 +115,26 @@ class UserController
         {
             $data = (object)json_decode(file_get_contents('php://input'), true);
 
-            $email = filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL);
-
-            // Check whether the provided email is already registered
-            if (User::userExists($email, 'Email')) {
-                http_response_code(StatusCodes::BAD_REQUEST);
-                exit("Error: this email is already used.");
-            }
-            else
+            $user = new User();
+            // Check if all the necessary information for creating a user is provided
+            if (property_exists($data, UserEnums::FIRST_NAME) &&
+                property_exists($data, UserEnums::LAST_NAME) &&
+                property_exists($data, UserEnums::EMAIL) &&
+                property_exists($data, UserEnums::PASSWORD) &&
+                property_exists($data, UserEnums::ZIP_CODE)
+            )
             {
-                $user = new User();
-                // Check if all the necessary information for creating a user is provided
-                if (property_exists($data, UserEnums::FIRST_NAME) &&
-                    property_exists($data, UserEnums::LAST_NAME) &&
-                    property_exists($data, UserEnums::EMAIL) &&
-                    property_exists($data, UserEnums::PASSWORD) &&
-                    property_exists($data, UserEnums::ZIP_CODE)
-                )
+                $email = filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL);
+
+                // Check whether the provided email is already registered
+                if (User::userExists($email, 'Email'))
                 {
+                    http_response_code(StatusCodes::BAD_REQUEST);
+                    exit("Error: this email is already used.");
+                }
+                else
+                {
+
                     $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
                     $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
                     $user->setEmail($email);
@@ -163,12 +165,13 @@ class UserController
                     $user->create();
                     http_response_code(StatusCodes::CREATED);
                 }
-                else
-                {
-                    http_response_code(StatusCodes::BAD_REQUEST);
-                    exit("Error: this request does not contain all the mandatory info for creating a user.");
-                }
             }
+            else
+            {
+                http_response_code(StatusCodes::BAD_REQUEST);
+                exit("Error: this request does not contain all the mandatory info for creating a user.");
+            }
+
         }
         catch (\Exception $e)
         {
@@ -177,6 +180,10 @@ class UserController
         }
     }
 
+    /*
+    *  @Route("/users/{id}")
+    *  @Method("PUT")
+    */
     function putUser($args)
     {
         try

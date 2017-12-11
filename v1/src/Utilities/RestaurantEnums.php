@@ -16,6 +16,10 @@ class RestaurantEnums
     const PHONE_NUMBER = "PhoneNumber";
     const DESCRIPTION = "Description";
     const ADDRESS = "Address";
+    const SECOND_ADDRESS = "SecondAddress";
+    const CITY = "City";
+    const STATE = "State";
+    const ZIP_CODE = "ZipCode";
     const WEBSITE = "Website";
     const USER_ID = "UserId";
 }

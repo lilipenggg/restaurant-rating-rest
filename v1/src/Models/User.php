@@ -156,7 +156,7 @@ class User implements \JsonSerializable
     /**
      * @param mixed $birthday
      */
-    public function setBirthday(string $birthday)
+    public function setBirthday($birthday)
     {
         $this->birthday = $birthday;
     }
@@ -172,7 +172,7 @@ class User implements \JsonSerializable
     /**
      * @param mixed $phoneNumber
      */
-    public function setPhoneNumber(string $phoneNumber)
+    public function setPhoneNumber($phoneNumber)
     {
         $this->phoneNumber = $phoneNumber;
     }
@@ -188,7 +188,7 @@ class User implements \JsonSerializable
     /**
      * @param mixed $gender
      */
-    public function setGender(string $gender)
+    public function setGender($gender)
     {
         $this->gender = $gender;
     }
@@ -402,6 +402,42 @@ class User implements \JsonSerializable
             else
             {
                 return ($stmtHandle->rowCount() != 0 ? true : false);
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
+    }
+
+    public static function getUserIdByEmail(string $email)
+    {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+
+            $stmtHandle = $dbh->prepare("SELECT `userId` FROM `User` WHERE `email` = :email");
+            $stmtHandle->bindValue(":email", $email);
+
+            $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $success = $stmtHandle->execute();
+
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+            else
+            {
+                if ($stmtHandle->rowCount() != 0)
+                {
+                    $user = $stmtHandle->fetch();
+                    return $user['userId'];
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
         catch (\Exception $e)
