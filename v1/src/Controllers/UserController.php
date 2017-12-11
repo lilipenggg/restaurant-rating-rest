@@ -208,31 +208,42 @@ class UserController
                         property_exists($data, UserEnums::ZIP_CODE)
                     )
                     {
-                        $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
-                        $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
-                        $user->setEmail(filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL));
-                        $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
-                        $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+                        $email = filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL);
 
-                        // Check and set the optional attributes for user
-                        if (property_exists($data, UserEnums::BIRTHDAY))
-                            $user->setBirthday(filter_var($data->{UserEnums::BIRTHDAY}, FILTER_SANITIZE_STRING));
+                        // Check whether the provided email is already registered
+                        if (User::userEmailUsed($email, $user->getUserId()))
+                        {
+                            http_response_code(StatusCodes::BAD_REQUEST);
+                            exit("Error: this email is already used.");
+                        }
                         else
-                            $user->setBirthday(null);
+                        {
+                            $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
+                            $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
+                            $user->setEmail($email);
+                            $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
+                            $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
 
-                        if (property_exists($data, UserEnums::PHONE_NUMBER))
-                            $user->setPhoneNumber(filter_var($data->{UserEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
-                        else
-                            $user->setPhoneNumber(null);
+                            // Check and set the optional attributes for user
+                            if (property_exists($data, UserEnums::BIRTHDAY))
+                                $user->setBirthday(filter_var($data->{UserEnums::BIRTHDAY}, FILTER_SANITIZE_STRING));
+                            else
+                                $user->setBirthday(null);
 
-                        if (property_exists($data, UserEnums::GENDER))
-                            $user->setGender(filter_var($data->{UserEnums::GENDER}, FILTER_SANITIZE_STRING));
-                        else
-                            $user->setGender(null);
+                            if (property_exists($data, UserEnums::PHONE_NUMBER))
+                                $user->setPhoneNumber(filter_var($data->{UserEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
+                            else
+                                $user->setPhoneNumber(null);
 
-                        // Update the user in the database
-                        $user->update();
-                        http_response_code(StatusCodes::OK);
+                            if (property_exists($data, UserEnums::GENDER))
+                                $user->setGender(filter_var($data->{UserEnums::GENDER}, FILTER_SANITIZE_STRING));
+                            else
+                                $user->setGender(null);
+
+                            // Update the user in the database
+                            $user->update();
+                            http_response_code(StatusCodes::OK);
+                        }
                     }
                     else
                     {
@@ -288,7 +299,17 @@ class UserController
                         $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
 
                     if (property_exists($data, UserEnums::EMAIL))
-                        $user->setEmail(filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL));
+                    {
+                        $email = filter_var($data->{UserEnums::EMAIL}, FILTER_SANITIZE_EMAIL);
+
+                        // Check whether the provided email is already registered
+                        if (User::userEmailUsed($email, $user->getUserId()))
+                        {
+                            http_response_code(StatusCodes::BAD_REQUEST);
+                            exit("Error: this email is already used.");
+                        }
+                        $user->setEmail($email);
+                    }
 
                     if (property_exists($data, UserEnums::PASSWORD))
                         $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
