@@ -410,6 +410,35 @@ class User implements \JsonSerializable
         }
     }
 
+    public static function userEmailUsed(string $email, string $id) : bool
+    {
+        try
+        {
+            $dbh = DatabaseConnection::getInstance();
+
+            $stmtHandle = $dbh->prepare("SELECT * FROM `User` WHERE `email` = :email AND `userId` != :userId");
+            $stmtHandle->bindValue(":email", $email);
+            $stmtHandle->bindValue(":userId", $id);
+
+            $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
+
+            $success = $stmtHandle->execute();
+
+            if (!$success)
+            {
+                throw new \PDOException("Error: SQL query execution failed.");
+            }
+            else
+            {
+                return ($stmtHandle->rowCount() != 0 ? true : false);
+            }
+        }
+        catch (\Exception $e)
+        {
+            throw $e;
+        }
+    }
+
     public static function getUserIdByEmail(string $email)
     {
         try
