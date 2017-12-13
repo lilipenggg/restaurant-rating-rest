@@ -11,26 +11,26 @@ This documentation provides guidelines and examples for using Restaurant Rating 
 
   - [POST /tokens](#post-tokens)
   
-  - [GET /users](#get-magazines)
-  - [GET /users/[id]](#get-magazinesid)
-  - [POST /users](#post-magazinesidarticles)
-  - [PUT /users/[id]](#post-magazinesidarticles)
-  - [PATCH /users/[id]](#post-magazinesidarticles)
-  - [DELETE /users/[id]](#post-magazinesidarticles)
+  - [GET /users](#get-users)
+  - [GET /users/[id]](#get-usersid)
+  - [POST /users](#post-users)
+  - [PUT /users/[id]](#put-users)
+  - [PATCH /users/[id]](#patch-users)
+  - [DELETE /users/[id]](#delete-users)
   
-  - [GET /restaurants](#post-magazinesidarticles)
-  - [GET /restaurants/[id]](#post-magazinesidarticles)
-  - [POST /restaurants](#post-magazinesidarticles)
-  - [PUT /restaurants/[id]](#post-magazinesidarticles)
-  - [PATCH /restaurants/[id]](#post-magazinesidarticles)
-  - [DELETE /restaurants/[id]](#post-magazinesidarticles)
+  - [GET /restaurants](#get-restaurants)
+  - [GET /restaurants/[id]](#get-restaurants)
+  - [POST /restaurants](#post-restaurants)
+  - [PUT /restaurants/[id]](#put-restaurants)
+  - [PATCH /restaurants/[id]](#patch-restaurants)
+  - [DELETE /restaurants/[id]](#delete-restaurants)
   
-  - [GET /reviews](#post-magazinesidarticles)
-  - [GET /reviews/[id]](#post-magazinesidarticles)
-  - [POST /reviews](#post-magazinesidarticles)
-  - [PUT /reviews/[id]](#post-magazinesidarticles)
-  - [PATCH /reviews/[id]](#post-magazinesidarticles)
-  - [DELETE /reviews/[id]](#post-magazinesidarticles)
+  - [GET /reviews](#get-reviews)
+  - [GET /reviews/[id]](#get-reviews)
+  - [POST /reviews](#post-reviews)
+  - [PUT /reviews/[id]](#put-reviews)
+  - [PATCH /reviews/[id]](#patch-reviews)
+  - [DELETE /reviews/[id]](#delete-reviews)
 
 ### POST /tokens
 
@@ -169,6 +169,7 @@ Note:
 Token is required to send with the request.
 Only the user themselves can update their own information, otherwise the request is unauthorized. Also, the email used for updating cannot be used by other users in the system. In other word, emails are unique identifier for users.
 When any of the required field is not included in the json body, the request will not be successful. Other optional fields that are not sent with the request will be setting to null.
+IMPORTANT: When you update the password with this request, you will need to regernerate a token from sending the POST /token request.
 
 
 ### PATCH /users/[id]
@@ -195,6 +196,7 @@ Note:
 Token is required to send with the request.
 Only the user themselves can update their own information, otherwise the request is unauthorized. Also, the email used for updating cannot be used by other users in the system. In other word, emails are unique identifier for users.
 With patch request, users can choose to only send the fields that they want to update in the request, the other fields that are not included will stay the same.
+IMPORTANT: When you update the password with this request, you will need to regernerate a token from sending the POST /token request.
 
 
 ### DELETE /users/[id]
@@ -208,42 +210,403 @@ Resquest header:
 Note: 
 Token is required to send with the request.
 Only the admin user can perform the delete operation.
+When the user is being deleted, the reviews and restaurants associated with it will be deleted as well.
 
 
-## Mock Responses
-It is suggested that each resource accept a 'mock' parameter on the testing server. Passing this parameter should return a mock data response (bypassing the backend).
+### GET /restaurants
 
-Implementing this feature early in development ensures that the API will exhibit consistent behavior, supporting a test driven development methodology.
-
-Note: If the mock parameter is included in a request to the production environment, an error should be raised.
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants
 
 
-## JSONP
+Response body:
 
-JSONP is easiest explained with an example. Here's one from [StackOverflow](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about?answertab=votes#tab-top):
+    [
+        {
+            "RestaurantId": "206459621",
+            "Name": "Hearth on 25th",
+            "PhoneNumber": "(801) 399-0088",
+            "Address": "195 25th Street",
+            "SecondAddress": null,
+            "City": "Ogden",
+            "State": "UT",
+            "ZipCode": "84401",
+            "Website": null,
+            "UserId": "283422970"
+        },
+        {
+            "RestaurantId": "306536309",
+            "Name": "The House",
+            "PhoneNumber": "(415) 986-8612",
+            "Address": "1230 Grant Ave",
+            "SecondAddress": null,
+            "City": "San Francisco",
+            "State": "CA",
+            "ZipCode": "94133",
+            "Website": "thehse.com",
+            "UserId": "283422970"
+        },
+        {
+            "RestaurantId": "532427260",
+            "Name": "Fog Harbor Fish House",
+            "PhoneNumber": "(415) 421-2442",
+            "Address": "Fishermans Wharf, North Beach Hill",
+            "SecondAddress": "Pier 39",
+            "City": "San Francisco",
+            "State": "CA",
+            "ZipCode": "94133",
+            "Website": null,
+            "UserId": "844857169"
+        },
+        {
+            "RestaurantId": "717365228",
+            "Name": "The House Full of Food",
+            "PhoneNumber": "(415) 986-8612",
+            "Address": "1230 Grant Ave",
+            "SecondAddress": null,
+            "City": "San Francisco",
+            "State": "CA",
+            "ZipCode": "94133",
+            "Website": "thehse.com",
+            "UserId": "283422970"
+        }
+    ]
+    
+Note: 
+This request can be sent without token. Both registered and non-registered users can retrieve all the restaurant information.
 
-> Say you're on domain abc.com, and you want to make a request to domain xyz.com. To do so, you need to cross domain boundaries, a no-no in most of browserland.
 
-> The one item that bypasses this limitation is `<script>` tags. When you use a script tag, the domain limitation is ignored, but under normal circumstances, you can't really DO anything with the results, the script just gets evaluated.
+### GET /restaurants/[id]
 
-> Enter JSONP. When you make your request to a server that is JSONP enabled, you pass a special parameter that tells the server a little bit about your page. That way, the server is able to nicely wrap up its response in a way that your page can handle.
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants/532427260
 
-> For example, say the server expects a parameter called "callback" to enable its JSONP capabilities. Then your request would look like:
 
->         http://www.xyz.com/sample.aspx?callback=mycallback
+Response body:
 
-> Without JSONP, this might return some basic javascript object, like so:
+    {
+        "RestaurantId": "532427260",
+        "Name": "Fog Harbor Fish House",
+        "PhoneNumber": "(415) 421-2442",
+        "Address": "Fishermans Wharf, North Beach Hill",
+        "SecondAddress": "Pier 39",
+        "City": "San Francisco",
+        "State": "CA",
+        "ZipCode": "94133",
+        "Website": null,
+        "UserId": "844857169"
+    }
 
->         { foo: 'bar' }
+Note: 
+This request can be sent without token. Both registered and non-registered user can retrieve a particular restaurant information.
 
-> However, with JSONP, when the server receives the "callback" parameter, it wraps up the result a little differently, returning something like this:
 
->         mycallback({ foo: 'bar' });
+### POST /restaurants
 
-> As you can see, it will now invoke the method you specified. So, in your page, you define the callback function:
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants
 
->         mycallback = function(data){
->             alert(data.foo);
->         };
 
-http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about?answertab=votes#tab-top
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+
+Request body:
+
+    {
+        "Name": "Slackwater Pub & Pizzeria",
+        "PhoneNumber": "(801) 399-0637",
+        "Address": "1895 Washington Blvd",
+        "City": "Ogden",
+        "State": "UT",
+        "ZipCode": "84401"
+    }
+
+Note:
+This request will have to be sent with a token because only registered user can create a restaurant in the system.
+All the required fields are needed to be filled out, otherwise the request will not be successful.
+The required fields are Name, PhoneNumber, Address, City, State, and ZipCode.
+
+
+### PUT /restaurants/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants/216004616
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Request body:
+
+    {
+        "Name": "Pig and a Jelly Jar",
+        "PhoneNumber": "(415) 986-8612",
+        "Address": "1230 Grant Ave",
+        "City": "San Francisco",
+        "State": "CA",
+        "ZipCode": "94133",
+        "Website": "thehse.com"
+    }
+
+Note: 
+Token is required to send with the request.
+Only the user who created the restaurant is able to update the restaurant information, otherwise it will return an unauthorized response code.
+When any of the required field is not included in the json body, the request will not be successful. Other optional fields that are not sent with the request will be setting to null.
+
+
+### PATCH /restaurants/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants/206459621
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Request body:
+
+    {
+        "Website": "pigandjelly.com"
+    }
+
+Note: 
+Token is required to send with the request.
+Only the user themselves can update their own information, otherwise the request is unauthorized. 
+With patch request, users can choose to only send the fields that they want to update in the request, the other fields that are not included will stay the same.
+
+
+### DELETE /restaurants/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/restaurants/254011894
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Note: 
+Token is required to send with the request.
+Only the admin user or the user who created the restaurant can perform the delete operation.
+When the restaurant is being deleted, the reviews associated with it will be deleted as well.
+
+
+### GET /reviews
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews
+
+
+Response body:
+
+    [
+        {
+        "ReviewId": "102973372",
+        "Rating": "1",
+        "RestaurantId": "532427260",
+        "ReviewContent": "This is a really fantastic restaurant, really good food and service.",
+        "UserId": "844857169"
+    },
+    {
+        "ReviewId": "128254907",
+        "Rating": "2",
+        "RestaurantId": "352629251",
+        "ReviewContent": "The worst restaurant I have ever been!! but the service is good, food is awful!! Don&#39;t go!",
+        "UserId": "578524206"
+    },
+    {
+        "ReviewId": "175848080",
+        "Rating": "5",
+        "RestaurantId": "532427260",
+        "ReviewContent": "Great Food, Great Service.Came in here for lunch on a work day. I ordered Kim Bop, and Suntofu Soup. There isn&#39;t much to say except that the food was excellent, the sides were delicious, the soup was filling, savory and spicy, the Kim bop was the best I&#39;ve had. It was just a great meal. I will definitely be back soon.",
+        "UserId": "578524206"
+    },
+    {
+        "ReviewId": "621613249",
+        "Rating": "3",
+        "RestaurantId": "306536309",
+        "ReviewContent": "A little bit pricy. but great experience in general!",
+        "UserId": "578524206"
+    },
+    {
+        "ReviewId": "630374179",
+        "Rating": "3",
+        "RestaurantId": "532427260",
+        "ReviewContent": "I like the food here, but there is improvement to be made.",
+        "UserId": "844857169"
+    },
+    {
+        "ReviewId": "651081393",
+        "Rating": "5",
+        "RestaurantId": "206459621",
+        "ReviewContent": "Great Food, Great Service. I will definitely be back soon.",
+        "UserId": "578524206"
+    },
+    {
+        "ReviewId": "836263070",
+        "Rating": "4",
+        "RestaurantId": "254667598",
+        "ReviewContent": "Good restaurant!",
+        "UserId": "578524206"
+    },
+    {
+        "ReviewId": "876654966",
+        "Rating": "2",
+        "RestaurantId": "254667598",
+        "ReviewContent": "I love this place, this is my favorite restaurant! highly recommend",
+        "UserId": "578524206"
+    }
+    ]
+    
+Note: 
+This request can be sent without token. Both registered and non-registered users can retrieve all the reviews.
+
+
+### GET /reviews?ratings=3+
+
+This endpoint provides a ability to the user to filter the reviews based on rating stars.
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews?ratings=3+
+
+
+Response body:
+
+    [
+        {
+            "ReviewId": "175848080",
+            "Rating": "5",
+            "RestaurantId": "532427260",
+            "ReviewContent": "Great Food, Great Service.Came in here for lunch on a work day. I ordered Kim Bop, and Suntofu Soup. There isn&#39;t much to say except that the food was excellent, the sides were delicious, the soup was filling, savory and spicy, the Kim bop was the best I&#39;ve had. It was just a great meal. I will definitely be back soon.",
+            "UserId": "578524206"
+        },
+        {
+            "ReviewId": "621613249",
+            "Rating": "3",
+            "RestaurantId": "306536309",
+            "ReviewContent": "A little bit pricy. but great experience in general!",
+            "UserId": "578524206"
+        },
+        {
+            "ReviewId": "630374179",
+            "Rating": "3",
+            "RestaurantId": "532427260",
+            "ReviewContent": "I like the food here, but there is improvement to be made.",
+            "UserId": "844857169"
+        },
+        {
+            "ReviewId": "651081393",
+            "Rating": "5",
+            "RestaurantId": "206459621",
+            "ReviewContent": "Great Food, Great Service. I will definitely be back soon.",
+            "UserId": "578524206"
+        },
+        {
+            "ReviewId": "836263070",
+            "Rating": "4",
+            "RestaurantId": "254667598",
+            "ReviewContent": "Good restaurant!",
+            "UserId": "578524206"
+        }
+    ]
+    
+Note: 
+This request can be sent without token. 
+Both registered and non-registered users can retrieve all the reviews.
+The filter of the reviews will accept any integer between 1 and 9 with or without plus or minus sign.
+example: /reviews?ratings=3+ means that return all the reviews with ratings greater or equal to 3, 
+/reviews?ratings=3- means that return all the reviews with ratings less or equal to 3,
+/reviews?ratings=3 means that return all the reviews with rating equals to 3.
+
+
+### GET /reviews/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews/175848080
+
+
+Response body:
+
+    {
+        "ReviewId": "175848080",
+        "Rating": "5",
+        "RestaurantId": "532427260",
+        "ReviewContent": "Great Food, Great Service.Came in here for lunch on a work day. I ordered Kim Bop, and Suntofu Soup. There isn&#39;t much to say except that the food was excellent, the sides were delicious, the soup was filling, savory and spicy, the Kim bop was the best I&#39;ve had. It was just a great meal. I will definitely be back soon.",
+        "UserId": "578524206"
+    }
+
+Note: 
+This request can be sent without token. 
+Both registered and non-registered user can retrieve a particular review information.
+
+
+### POST /reviews
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews
+
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+
+Request body:
+
+    {
+        "Rating": "4",
+        "ReviewContent": "Good restaurant!",
+        "RestaurantId": "254667598"
+    }
+
+Note:
+This request will have to be sent with a token because only registered user can post a review for a restaurant.
+All the required fields are needed to be filled out, otherwise the request will not be successful.
+The required fields are Rating, ReviewContent, and RestaurantId.
+
+
+### PUT /reviews/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews/102973372
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Request body:
+
+    {
+        "Rating": "5",
+        "ReviewContent": "This is a really fantastic restaurant, really good food and service.",
+        "RestaurantId": "532427260"
+    }
+
+Note: 
+Token is required to send with the request.
+Only the user who posted the review is able to update the review, otherwise it will return an unauthorized response code.
+When any of the required field is not included in the json body, the request will not be successful.
+
+
+### PATCH /reviews/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews/630374179
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Request body:
+
+    {
+        "Rating": "1"
+    }
+
+Note: 
+Token is required to send with the request.
+Only the user themselves who posted the review can update their own reviews, otherwise the request is unauthorized. 
+With patch request, users can choose to only send the fields that they want to update in the request, the other fields that are not included will stay the same.
+
+
+### DELETE /reviews/[id]
+
+Example: http://icarus.cs.weber.edu/~lp54326/restaurant-rating-rest/v1/reviews/630374179
+
+Resquest header:
+
+    Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE1MTMxMzU4NDEsImp0aSI6IjVhMzA5ZWUxNTQ1MmQyLjg0MzM1NTAxIiwiaXNzIjoiaHR0cDpcL1wvaWNhcnVzLmNzLndlYmVyLmVkdSIsIm5iZiI6MTUxMzEzNTg0MSwiZXhwIjoxNTEzMTM5NDQxLCJkYXRhIjp7ImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwicm9sZSI6IkFkbWluIn19.26px1-kwlspb94pLcuEIBkGylKiBJ_CJI5mY_FjP9M8
+
+Note: 
+Token is required to send with the request.
+Only the admin user or the user who posted the review can perform the delete operation.
+
