@@ -93,13 +93,13 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
         $rating = null;
         $condition = null;
 
-        if (!empty($_GET['ratings']))
+        if (isset($_GET['ratings']))
         {
             $reviewController = new \Restaurant\Controllers\ReviewController();
             $string = urlencode($_GET['ratings']);
 
             // Make sure the query string that is being passed in is valid
-            if (preg_match('/^[0-9]+[+-]{0,1}$/', $string))
+            if (preg_match('/^[1-9]+[+-]{0,1}$/', $string))
             {
                 // Check whether there is a plus or minus sign at the end
                 if (substr($string, -1) == '+')

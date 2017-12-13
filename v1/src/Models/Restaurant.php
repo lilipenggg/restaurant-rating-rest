@@ -412,17 +412,31 @@ class Restaurant implements \JsonSerializable
 
             if ($id == null)
             {
-                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                if ($secondAddress != null)
+                {
+                    $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
                                              WHERE `name` = :rname 
                                              AND `address` = :address 
                                              AND `secondAddress` = :secondAddress                                         
                                              AND `city` = :city
                                              AND `state` = :state
                                              AND `zipCode` = :zipCode");
+                    $stmtHandle->bindValue(":secondAddress", $secondAddress);
+                }
+                else
+                    $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                                             WHERE `name` = :rname 
+                                             AND `address` = :address                                          
+                                             AND `city` = :city
+                                             AND `state` = :state
+                                             AND `zipCode` = :zipCode");
+
             }
             else
             {
-                $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                if ($secondAddress != null)
+                {
+                    $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
                                              WHERE `name` = :rname 
                                              AND `address` = :address 
                                              AND `secondAddress` = :secondAddress  
@@ -430,12 +444,22 @@ class Restaurant implements \JsonSerializable
                                              AND `state` = :state
                                              AND `zipCode` = :zipCode
                                              AND `restaurantId` != :restaurantId");
+                    $stmtHandle->bindValue(":secondAddress", $secondAddress);
+                }
+                else
+                    $stmtHandle = $dbh->prepare("SELECT * FROM  `Restaurant` 
+                                             WHERE `name` = :rname 
+                                             AND `address` = :address                                          
+                                             AND `city` = :city
+                                             AND `state` = :state
+                                             AND `zipCode` = :zipCode
+                                             AND `restaurantId` != :restaurantId");
+
                 $stmtHandle->bindValue(":restaurantId", $id);
             }
 
             $stmtHandle->bindValue(":rname", $name);
             $stmtHandle->bindValue(":address", $address);
-            $stmtHandle->bindValue(":secondAddress", $secondAddress);
             $stmtHandle->bindValue(":city", $city);
             $stmtHandle->bindValue(":state", $state);
             $stmtHandle->bindValue(":zipCode", $zipCode);

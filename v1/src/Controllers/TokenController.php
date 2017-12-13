@@ -26,7 +26,8 @@ class TokenController
 
         if ($success === false)
         {
-            throw new \PDOException("Error: SQL query execution failed.");
+            http_response_code(StatusCodes::INTERNAL_SERVER_ERROR);
+            exit("Error: SQL query execution failed.");
         }
         else
         {

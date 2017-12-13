@@ -94,73 +94,82 @@ class RestaurantController
      */
     function postRestaurant()
     {
-        try
-        {
-            $data = (object)json_decode(file_get_contents('php://input'), true);
-
-            // Check if all the necessary information for creating a restaurant is provided
-            if (property_exists($data, RestaurantEnums::NAME) &&
-                property_exists($data, RestaurantEnums::PHONE_NUMBER) &&
-                property_exists($data, RestaurantEnums::ADDRESS) &&
-                property_exists($data, RestaurantEnums::CITY) &&
-                property_exists($data, RestaurantEnums::STATE) &&
-                property_exists($data, RestaurantEnums::ZIP_CODE)
-            )
+        try {
+            // Make sure only registered or sign in user can post a restaurant
+            $userEmail = Token::getEmailFromToken();
+            if ($userEmail != null)
             {
-                $name = filter_var($data->{RestaurantEnums::NAME}, FILTER_SANITIZE_STRING);
-                $address = filter_var($data->{RestaurantEnums::ADDRESS}, FILTER_SANITIZE_STRING);
-                if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
-                    $secondAddress = filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING);
-                else
-                    $secondAddress = null;
+                $data = (object)json_decode(file_get_contents('php://input'), true);
 
-                $city = filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING);
-                $state = filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING);
-                $zipCode = filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT);
-
-                // Check whether the restaurant exists
-                if (Restaurant::restaurantExistsByNameAddress($name, $address, $secondAddress, $city, $state, $zipCode) === false)
+                // Check if all the necessary information for creating a restaurant is provided
+                if (property_exists($data, RestaurantEnums::NAME) &&
+                    property_exists($data, RestaurantEnums::PHONE_NUMBER) &&
+                    property_exists($data, RestaurantEnums::ADDRESS) &&
+                    property_exists($data, RestaurantEnums::CITY) &&
+                    property_exists($data, RestaurantEnums::STATE) &&
+                    property_exists($data, RestaurantEnums::ZIP_CODE)
+                )
                 {
-                    $restaurant = new Restaurant();
-
-                    // Set all the provided information to the local restaurant object
-                    $restaurant->setName($name);
-                    $restaurant->setPhoneNumber(filter_var($data->{RestaurantEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
-                    $restaurant->setAddress($address);
-                    $restaurant->setCity($city);
-                    $restaurant->setState($state);
-                    $restaurant->setZipCode($zipCode);
-
-
-                    // Set hidden fields for restaurant
-                    $restaurant->setRestaurantId(u::unique_id());
-                    $restaurant->setUserId(User::getUserIdByEmail(Token::getEmailFromToken()));
-
-                    // Set optional field for restaurant
-                    if (property_exists($data, RestaurantEnums::WEBSITE))
-                        $restaurant->setWebsite(filter_var($data->{RestaurantEnums::WEBSITE}, FILTER_SANITIZE_STRING));
-                    else
-                        $restaurant->setWebsite(null);
-
+                    $name = filter_var($data->{RestaurantEnums::NAME}, FILTER_SANITIZE_STRING);
+                    $address = filter_var($data->{RestaurantEnums::ADDRESS}, FILTER_SANITIZE_STRING);
                     if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
-                        $restaurant->setSecondAddress(filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING));
+                        $secondAddress = filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING);
                     else
-                        $restaurant->setSecondAddress(null);
+                        $secondAddress = null;
 
-                    // Create the restaurant in database
-                    $restaurant->create();
-                    http_response_code(StatusCodes::CREATED);
+                    $city = filter_var($data->{RestaurantEnums::CITY}, FILTER_SANITIZE_STRING);
+                    $state = filter_var($data->{RestaurantEnums::STATE}, FILTER_SANITIZE_STRING);
+                    $zipCode = filter_var($data->{RestaurantEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT);
+
+                    // Check whether the restaurant exists
+                    if (Restaurant::restaurantExistsByNameAddress($name, $address, $secondAddress, $city, $state, $zipCode) === false)
+                    {
+                        $restaurant = new Restaurant();
+
+                        // Set all the provided information to the local restaurant object
+                        $restaurant->setName($name);
+                        $restaurant->setPhoneNumber(filter_var($data->{RestaurantEnums::PHONE_NUMBER}, FILTER_SANITIZE_STRING));
+                        $restaurant->setAddress($address);
+                        $restaurant->setCity($city);
+                        $restaurant->setState($state);
+                        $restaurant->setZipCode($zipCode);
+
+
+                        // Set hidden fields for restaurant
+                        $restaurant->setRestaurantId(u::unique_id());
+                        $restaurant->setUserId(User::getUserIdByEmail($userEmail));
+
+                        // Set optional field for restaurant
+                        if (property_exists($data, RestaurantEnums::WEBSITE))
+                            $restaurant->setWebsite(filter_var($data->{RestaurantEnums::WEBSITE}, FILTER_SANITIZE_STRING));
+                        else
+                            $restaurant->setWebsite(null);
+
+                        if (property_exists($data, RestaurantEnums::SECOND_ADDRESS))
+                            $restaurant->setSecondAddress(filter_var($data->{RestaurantEnums::SECOND_ADDRESS}, FILTER_SANITIZE_STRING));
+                        else
+                            $restaurant->setSecondAddress(null);
+
+                        // Create the restaurant in database
+                        $restaurant->create();
+                        http_response_code(StatusCodes::CREATED);
+                    }
+                    else
+                    {
+                        http_response_code(StatusCodes::BAD_REQUEST);
+                        exit("Error: the restaurant with this name and address already exists.");
+                    }
                 }
                 else
                 {
                     http_response_code(StatusCodes::BAD_REQUEST);
-                    exit("Error: the restaurant with this name and address already exists.");
+                    exit ("Error: this request does not contain all the mandatory info for creating a restaurant");
                 }
             }
             else
             {
-                http_response_code(StatusCodes::BAD_REQUEST);
-                exit ("Error: this request does not contain all the mandatory info for creating a restaurant");
+                http_response_code(StatusCodes::METHOD_NOT_ALLOWED);
+                exit("Error: you have to create an account or sign in to post a review.");
             }
         }
         catch (\Exception $e)

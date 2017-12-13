@@ -358,6 +358,25 @@ class User implements \JsonSerializable
             else
             {
                 $dbh = DatabaseConnection::getInstance();
+
+                $stmtHandle = $dbh->prepare("DELETE FROM `Review` WHERE `userId` = :userId");
+                $stmtHandle->bindValue(":userId", $this->userId);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+
+                $stmtHandle = $dbh->prepare("DELETE * FROM `Restaurant` WHERE `userId` = :userId");
+                $stmtHandle->bindValue(":userId", $this->userId);
+                $success = $stmtHandle->execute();
+
+                if (!$success)
+                {
+                    throw new \PDOException("Error: SQL query execution failed.");
+                }
+
                 $stmtHandle = $dbh->prepare("DELETE FROM `User` WHERE `userId` = :userId");
                 $stmtHandle->bindValue(":userId", $this->userId);
                 $success = $stmtHandle->execute();
@@ -366,6 +385,7 @@ class User implements \JsonSerializable
                 {
                     throw new \PDOException("Error: SQL query execution failed.");
                 }
+
             }
         }
         catch (\Exception $e)
