@@ -190,6 +190,7 @@ class Review implements \JsonSerializable
             {
                 $dbh = DatabaseConnection::getInstance();
                 $stmtHandle = $dbh->prepare("SELECT * FROM `Review` WHERE `reviewId` = :reviewId");
+                $stmtHandle->bindValue(":reviewId", $this->reviewId);
 
                 $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
                 $success = $stmtHandle->execute();

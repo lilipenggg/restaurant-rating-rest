@@ -35,7 +35,7 @@ class TokenController
                 $data = $stmtHandle->fetch();
 
                 // Check whether the password matches
-                if ($password === $data['password'])
+                if (password_verify($password, $data['password']))
                 {
                     $role = $data['userType'];
                     return (new Token())->buildToken($email, $role);

@@ -89,7 +89,43 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r)  
     };
 
     $handleGetReviews = function () {
-        return (new \Restaurant\Controllers\ReviewController())->getReviews();
+
+        $rating = null;
+        $condition = null;
+
+        if (!empty($_GET['ratings']))
+        {
+            $reviewController = new \Restaurant\Controllers\ReviewController();
+            $string = urlencode($_GET['ratings']);
+
+            // Make sure the query string that is being passed in is valid
+            if (preg_match('/^[0-9]+[+-]{0,1}$/', $string))
+            {
+                // Check whether there is a plus or minus sign at the end
+                if (substr($string, -1) == '+')
+                {
+                    $condition = $reviewController::GREATER_OR_EQUAL;
+                    $rating = substr($string, 0, -1);
+                }
+                else if (substr($string, -1) == '-')
+                {
+                    $condition = $reviewController::LESS_OR_EQUAL;
+                    $rating = substr($string, 0, -1);
+                }
+                else
+                {
+                    $condition = null;
+                    $rating = $string;
+                }
+            }
+            else
+            {
+                http_response_code(\Restaurant\Http\StatusCodes::BAD_REQUEST);
+                exit("Error: rating query string is not a valid format.");
+            }
+        }
+
+        return (new \Restaurant\Controllers\ReviewController())->getReviews($rating, $condition);
     };
 
     $handlePostReview = function () {

@@ -138,8 +138,10 @@ class UserController
                     $user->setFirstName(filter_var($data->{UserEnums::FIRST_NAME}, FILTER_SANITIZE_STRING));
                     $user->setLastName(filter_var($data->{UserEnums::LAST_NAME}, FILTER_SANITIZE_STRING));
                     $user->setEmail($email);
-                    $user->setPassword(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING));
                     $user->setZipCode(filter_var($data->{UserEnums::ZIP_CODE}, FILTER_SANITIZE_NUMBER_INT));
+
+                    // Hash the password
+                    $user->setPassword(password_hash(filter_var($data->{UserEnums::PASSWORD}, FILTER_SANITIZE_STRING), PASSWORD_BCRYPT));
 
                     // Set the user hidden attributes
                     $user->setUserId(u::unique_id());

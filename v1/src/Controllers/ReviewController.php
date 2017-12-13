@@ -14,10 +14,14 @@ use Restaurant\Utilities\ReviewEnums;
 use Restaurant\Models\User;
 use Restaurant\Models\Token;
 use Restaurant\Utilities\Utilities as u;
+use Restaurant\Utilities\DatabaseConnection;
 
 
 class ReviewController
 {
+    const GREATER_OR_EQUAL = "GreaterEqual";
+    const LESS_OR_EQUAL = "LessEqual";
+
     /*
      * @Route("/reviews/{id}")
      * @Method("GET")
@@ -52,12 +56,30 @@ class ReviewController
      * @Route("/reviews")
      * @Method("GET")
      */
-    function getReviews()
+    function getReviews($rating=null, $condition=null)
     {
         try
         {
             $dbh = DatabaseConnection::getInstance();
-            $stmtHandle = $dbh->prepare("SELECT `reviewId` FROM `Review`");
+
+            // Retrieve all the reviews when there is no query string attached
+            if ($rating == null)
+            {
+                $stmtHandle = $dbh->prepare("SELECT `reviewId` FROM `Review`");
+            }
+            // Retrieve reviews based on query string condition
+            else
+            {
+                if ($condition == self::GREATER_OR_EQUAL)
+                    $stmtHandle = $dbh->prepare("SELECT `reviewId` FROM `Review` WHERE `rating` >= :ratings");
+                else if ($condition == self::LESS_OR_EQUAL)
+                    $stmtHandle = $dbh->prepare("SELECT `reviewId` FROM `Review` WHERE `rating` <= :ratings");
+                else if ($condition == null)
+                    $stmtHandle = $dbh->prepare("SELECT `reviewId` FROM `Review` WHERE `rating` = :ratings");
+
+                $stmtHandle->bindValue(":ratings", $rating);
+            }
+
             $stmtHandle->setFetchMode(\PDO::FETCH_ASSOC);
 
             $success = $stmtHandle->execute();
@@ -95,7 +117,7 @@ class ReviewController
     {
         try
         {
-            $data = (object)json_decode(file_get_contents('php;://input'), true);
+            $data = (object)json_decode(file_get_contents('php://input'), true);
 
             // Make sure that only registered user can post a review
             $userEmail = Token::getEmailFromToken();
