@@ -14,23 +14,24 @@ This documentation provides guidelines and examples for using Restaurant Rating 
   - [GET /users](#get-users)
   - [GET /users/[id]](#get-usersid)
   - [POST /users](#post-users)
-  - [PUT /users/[id]](#put-users)
-  - [PATCH /users/[id]](#patch-users)
-  - [DELETE /users/[id]](#delete-users)
+  - [PUT /users/[id]](#put-usersid)
+  - [PATCH /users/[id]](#patch-usersid)
+  - [DELETE /users/[id]](#delete-usersid)
   
   - [GET /restaurants](#get-restaurants)
-  - [GET /restaurants/[id]](#get-restaurants)
+  - [GET /restaurants/[id]](#get-restaurantsid)
   - [POST /restaurants](#post-restaurants)
-  - [PUT /restaurants/[id]](#put-restaurants)
-  - [PATCH /restaurants/[id]](#patch-restaurants)
-  - [DELETE /restaurants/[id]](#delete-restaurants)
+  - [PUT /restaurants/[id]](#put-restaurantsid)
+  - [PATCH /restaurants/[id]](#patch-restaurantsid)
+  - [DELETE /restaurants/[id]](#delete-restaurantsid)
   
   - [GET /reviews](#get-reviews)
-  - [GET /reviews/[id]](#get-reviews)
+  - [GET /reviews?ratings](#get-reviewsratings)
+  - [GET /reviews/[id]](#get-reviewsid)
   - [POST /reviews](#post-reviews)
-  - [PUT /reviews/[id]](#put-reviews)
-  - [PATCH /reviews/[id]](#patch-reviews)
-  - [DELETE /reviews/[id]](#delete-reviews)
+  - [PUT /reviews/[id]](#put-reviewsid)
+  - [PATCH /reviews/[id]](#patch-reviewsid)
+  - [DELETE /reviews/[id]](#delete-reviewsid)
 
 ### POST /tokens
 
@@ -456,7 +457,7 @@ Note:
 This request can be sent without token. Both registered and non-registered users can retrieve all the reviews.
 
 
-### GET /reviews?ratings=3+
+### GET /reviews?ratings
 
 This endpoint provides a ability to the user to filter the reviews based on rating stars.
 
