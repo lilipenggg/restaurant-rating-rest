@@ -26,7 +26,7 @@ This documentation provides guidelines and examples for using Restaurant Rating 
   - [DELETE /restaurants/[id]](#delete-restaurantsid)
   
   - [GET /reviews](#get-reviews)
-  - [GET /reviews?ratings](#get-reviewsratings)
+  - [GET /reviews?ratings=](#get-reviewsratings)
   - [GET /reviews/[id]](#get-reviewsid)
   - [POST /reviews](#post-reviews)
   - [PUT /reviews/[id]](#put-reviewsid)
@@ -62,39 +62,39 @@ Resquest header:
 Response body:
 
     [
-    {
-        "UserId": "317002676",
-        "FirstName": "Jean",
-        "LastName": "Doe",
-        "Email": "jeandoe@gmail.com",
-        "ZipCode": "84401",
-        "Birthday": null,
-        "PhoneNumber": "8017773333",
-        "Gender": "Male",
-        "UserType": "Regular"
-    },
-    {
-        "UserId": "578524206",
-        "FirstName": "John",
-        "LastName": "Doe",
-        "Email": "johndoe@gmail.com",
-        "ZipCode": "84401",
-        "Birthday": null,
-        "PhoneNumber": "8012223333",
-        "Gender": "Male",
-        "UserType": "Regular"
-    },
-    {
-        "UserId": "695306068",
-        "FirstName": "Admin",
-        "LastName": "User",
-        "Email": "admin@gmail.com",
-        "ZipCode": "84401",
-        "Birthday": null,
-        "PhoneNumber": "8012223333",
-        "Gender": "Female",
-        "UserType": "Admin"
-    }
+        {
+            "UserId": "317002676",
+            "FirstName": "Jean",
+            "LastName": "Doe",
+            "Email": "jeandoe@gmail.com",
+            "ZipCode": "84401",
+            "Birthday": null,
+            "PhoneNumber": "8017773333",
+            "Gender": "Male",
+            "UserType": "Regular"
+        },
+        {
+            "UserId": "578524206",
+            "FirstName": "John",
+            "LastName": "Doe",
+            "Email": "johndoe@gmail.com",
+            "ZipCode": "84401",
+            "Birthday": null,
+            "PhoneNumber": "8012223333",
+            "Gender": "Male",
+            "UserType": "Regular"
+        },
+        {
+            "UserId": "695306068",
+            "FirstName": "Admin",
+            "LastName": "User",
+            "Email": "admin@gmail.com",
+            "ZipCode": "84401",
+            "Birthday": null,
+            "PhoneNumber": "8012223333",
+            "Gender": "Female",
+            "UserType": "Admin"
+        }
     ]
     
 Note: 
@@ -457,7 +457,7 @@ Note:
 This request can be sent without token. Both registered and non-registered users can retrieve all the reviews.
 
 
-### GET /reviews?ratings
+### GET /reviews?ratings=
 
 This endpoint provides a ability to the user to filter the reviews based on rating stars.
 
