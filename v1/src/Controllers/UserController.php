@@ -34,7 +34,7 @@ class UserController
                 $user->load();
 
                 // Check whether the person who send the request is retrieving their own information
-                if ($user->getEmail() == Token::getEmailFromToken())
+                if ($user->getEmail() == Token::getEmailFromToken() || Token::getRoleFromToken() == Token::ROLE_ADMIN)
                 {
                     return $user;
                 }
