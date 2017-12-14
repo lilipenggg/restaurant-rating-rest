@@ -143,7 +143,7 @@ Request body:
     }
 
 Note:
-The email used for create a new user account cannot be used by other existing user in the system, otherwise the request will return an error and the new user will not be created successfully.
+The email used for create a new user account, the email used for registration cannot be used by other existing user in the system, otherwise the request will return an error and the new user will not be created successfully.
 With sending POST request to create a user account, the default user type will be set to Regular.
 
 ### PUT /users/[id]
